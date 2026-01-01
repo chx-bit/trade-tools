@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Pip Calculator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: #09090b;
+        --foreground: #fafafa;
+        --card: #09090b;
+        --border: #27272a;
+        --input: #27272a;
+        --primary: #fafafa;
+        --primary-fg: #18181b;
+        --muted: #a1a1aa;
+        --ring: #d4d4d8;
+        --radius: 0.5rem;
+        --win: #34d399;
+        --loss: #f87171;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* NAVBAR */
+      nav {
+        height: 64px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(12px);
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .brand-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px;
+        border-radius: 6px;
+        color: var(--foreground);
+      }
+
+      .nav-link {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+      }
+
+      /* FORM CONTAINER */
+      .container {
+        max-width: 480px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+      }
+
+      .card-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      label {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      input,
+      select {
+        width: 100%;
+        height: 2.75rem;
+        padding: 0 0.75rem;
+        background: transparent;
+        border: 1px solid var(--input);
+        border-radius: var(--radius);
+        color: var(--foreground);
+        font-size: 1rem;
+        transition: border 0.2s;
+      }
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23fafafa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.25em 1.25em;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--ring);
+      }
+
+      .helper {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.4rem;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      button {
+        width: 100%;
+        height: 3rem;
+        background: var(--foreground);
+        color: var(--background);
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: opacity 0.2s;
+      }
+
+      button:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+      }
+
+      /* RESULT */
+      .result-box {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: none;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .result-box.show {
+        display: block;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .res-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .res-label {
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+
+      .res-val {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .res-money {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .profit {
+        color: var(--win);
+      }
+
+      .loss {
+        color: var(--loss);
+      }
+
+      @media (max-width: 600px) {
+        nav,
+        .container {
+          padding: 0 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html" class="brand">
+        <div class="brand-icon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="4" y="2" width="16" height="20" rx="2" />
+            <line x1="8" y1="6" x2="16" y2="6" />
+            <line x1="16" y1="14" x2="16" y2="18" />
+            <path d="M16 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M8 10h.01" />
+            <path d="M12 14h.01" />
+            <path d="M8 14h.01" />
+            <path d="M12 18h.01" />
+            <path d="M8 18h.01" />
+          </svg>
+        </div>
+        <span>PipCalc</span>
+      </a>
+      <a href="journal.html" class="nav-link">Journal →</a>
+    </nav>
+
+    <div class="container">
+      <div class="card-box">
+        <div class="form-group">
+          <label>Instrumen / Pair</label>
+          <select id="pair" onchange="updateUI()">
+            <optgroup label="Forex Major">
+              <option value="EURUSD">EUR/USD</option>
+              <option value="GBPUSD">GBP/USD</option>
+              <option value="USDJPY">USD/JPY</option>
+              <option value="AUDUSD">AUD/USD</option>
+            </optgroup>
+            <optgroup label="Commodities">
+              <option value="XAUUSD">XAU/USD (Gold)</option>
+              <option value="XAGUSD">XAG/USD (Silver)</option>
+              <option value="XTIUSD">XTI/USD (Oil)</option>
+            </optgroup>
+            <optgroup label="Crypto">
+              <option value="BTCUSD">BTC/USD</option>
+              <option value="ETHUSD">ETH/USD</option>
+            </optgroup>
+            <optgroup label="Indices">
+              <option value="US100">US100 (Nasdaq)</option>
+              <option value="US30">US30 (Dow Jones)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
+          <div class="form-group">
+            <label>Open Price</label>
+            <input
+              type="number"
+              id="openPrice"
+              placeholder="0.0000"
+              step="any"
+            />
+          </div>
+          <div class="form-group">
+            <label>Target Price</label>
+            <input
+              type="number"
+              id="closePrice"
+              placeholder="0.0000"
+              step="any"
+            />
+          </div>
+        </div>
+        <div class="helper" style="margin-top: -10px; margin-bottom: 1rem">
+          <span id="ph-hint">Contoh: 1.0500</span>
+          <span style="color: #fbbf24">Gunakan titik (.)</span>
+        </div>
+
+        <div class="form-group">
+          <label>Lot Size</label>
+          <input type="number" id="lotSize" value="0.01" step="0.01" />
+        </div>
+
+        <button onclick="calculate()">Hitung Profit</button>
+
+        <div id="result-area" class="result-box">
+          <div class="res-row">
+            <span class="res-label">Jarak Pergerakan</span>
+            <span id="res-pips" class="res-val">0 Pips</span>
+          </div>
+          <div class="res-row">
+            <span class="res-label">Estimasi Profit/Loss</span>
+            <span id="res-money" class="res-money">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- CONFIGURATION ---
+      const config = {
+        EURUSD: { type: "std", k: 100000, pip: 0.0001, ex: "1.0550" },
+        GBPUSD: { type: "std", k: 100000, pip: 0.0001, ex: "1.2650" },
+        AUDUSD: { type: "std", k: 100000, pip: 0.0001, ex: "0.6450" },
+        USDJPY: { type: "inv", k: 100000, pip: 0.01, ex: "150.25" },
+        XAUUSD: { type: "std", k: 100, pip: 0.1, ex: "2640.00" },
+        XAGUSD: { type: "std", k: 5000, pip: 0.01, ex: "31.50" },
+        XTIUSD: { type: "std", k: 100, pip: 0.01, ex: "68.50" },
+        BTCUSD: { type: "raw", k: 1, pip: 1, ex: "98000.00" },
+        ETHUSD: { type: "raw", k: 1, pip: 0.1, ex: "3800.50" },
+        US100: { type: "raw", k: 1, pip: 1, ex: "20500.00" },
+        US30: { type: "raw", k: 1, pip: 1, ex: "44500.00" },
+      };
+
+      function updateUI() {
+        const key = document.getElementById("pair").value;
+        const c = config[key];
+        const openInput = document.getElementById("openPrice");
+        const closeInput = document.getElementById("closePrice");
+
+        document.getElementById("ph-hint").innerText = "Contoh: " + c.ex;
+        openInput.placeholder = c.ex;
+        closeInput.placeholder = c.ex;
+        openInput.value = "";
+        closeInput.value = "";
+
+        document.getElementById("result-area").classList.remove("show");
+      }
+
+      function calculate() {
+        const key = document.getElementById("pair").value;
+        const o = parseFloat(document.getElementById("openPrice").value);
+        const c = parseFloat(document.getElementById("closePrice").value);
+        const l = parseFloat(document.getElementById("lotSize").value);
+
+        if (isNaN(o) || isNaN(c) || isNaN(l)) {
+          alert("Mohon isi semua angka!");
+          return;
+        }
+
+        const conf = config[key];
+        const diff = c - o;
+        let profit = 0;
+
+        if (conf.type === "std") profit = diff * conf.k * l;
+        else if (conf.type === "inv") profit = (diff * conf.k * l) / c;
+        else profit = diff * conf.k * l;
+
+        const pips = diff / conf.pip;
+
+        const resBox = document.getElementById("result-area");
+        const mEl = document.getElementById("res-money");
+        const pEl = document.getElementById("res-pips");
+
+        const fmt = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(profit);
+        mEl.innerText = (profit > 0 ? "+ " : "") + fmt;
+        mEl.className = "res-money " + (profit >= 0 ? "profit" : "loss");
+
+        const unit =
+          key.includes("USD") &&
+          !key.includes("BTC") &&
+          !key.includes("ETH") &&
+          !key.includes("US")
+            ? " Pips"
+            : " Points";
+        pEl.innerText = pips.toFixed(1) + unit;
+
+        resBox.classList.add("show");
+      }
+
+      updateUI();
+    </script>
+  </body>
+</html>

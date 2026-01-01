@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Trading Journal</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: #09090b;
+        --foreground: #fafafa;
+        --card: #09090b;
+        --border: #27272a;
+        --input: #27272a;
+        --primary: #fafafa;
+        --primary-fg: #18181b;
+        --muted: #a1a1aa;
+        --ring: #d4d4d8;
+        --radius: 0.5rem;
+        --win: #34d399;
+        --loss: #f87171;
+        --be: #fbbf24;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--foreground);
+        min-height: 100vh;
+        padding-bottom: 6rem;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* NAVBAR */
+      nav {
+        height: 64px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(9, 9, 11, 0.95);
+        backdrop-filter: blur(12px);
+        margin-bottom: 50px;
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px;
+        border-radius: 6px;
+        color: var(--foreground);
+      }
+
+      .nav-link {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+      }
+
+      /* CONTAINER */
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+
+      /* STATS GRID */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 0.75rem 0.5rem;
+        border-radius: var(--radius);
+        text-align: center;
+      }
+
+      .stat-lbl {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-val {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .green {
+        color: var(--win);
+      }
+      .red {
+        color: var(--loss);
+      }
+
+      /* TOOLBAR */
+      .toolbar {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .btn-main {
+        flex: 1;
+        background: var(--foreground);
+        color: var(--background);
+        padding: 0.8rem;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-sec {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--foreground);
+        padding: 0.8rem 1rem;
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .btn-danger {
+        background: rgba(248, 113, 113, 0.15);
+        color: var(--loss);
+        border: 1px solid rgba(248, 113, 113, 0.2);
+      }
+
+      /* LIST CARD */
+      .list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .j-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.2s;
+        cursor: pointer;
+      }
+
+      .j-card:active {
+        background: #18181b;
+      }
+
+      .j-check {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--muted);
+        border-radius: 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .j-check.active {
+        display: flex;
+      }
+
+      .j-check.checked {
+        background: var(--foreground);
+        border-color: var(--foreground);
+      }
+
+      .j-check.checked::after {
+        content: "✓";
+        color: var(--background);
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .j-content {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .j-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .j-pair {
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .link-icon {
+        color: var(--muted);
+        width: 14px;
+        height: 14px;
+      }
+
+      .j-meta {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .tag {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .LONG {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+      }
+      .SHORT {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+      }
+
+      .j-right {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .j-pnl {
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .j-status {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      /* MODAL */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .modal.open {
+        display: flex;
+      }
+
+      .modal-box {
+        background: var(--background);
+        border: 1px solid var(--border);
+        width: 100%;
+        max-width: 420px;
+        padding: 1.5rem;
+        border-radius: 12px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes popUp {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 0.8rem;
+        background: transparent;
+        border: 1px solid var(--input);
+        color: white;
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+        font-family: inherit;
+        font-size: 1rem;
+      }
+
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.25em 1.25em;
+        padding-right: 2.5rem;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .btns {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .tv-link-btn {
+        font-size: 0.85rem;
+        color: #60a5fa;
+        text-decoration: underline;
+        cursor: pointer;
+        display: inline-block;
+        margin-top: 5px;
+      }
+
+      @media (max-width: 600px) {
+        nav,
+        .container {
+          padding: 0 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="index.html" class="brand">
+        <div class="card-icon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path
+              d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+            />
+          </svg>
+        </div>
+        <span>TradeJournal</span>
+      </a>
+      <a href="calc.html" class="nav-link">Calc →</a>
+    </nav>
+
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-lbl">Win Rate</div>
+          <div class="stat-val" id="wr">0%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Total</div>
+          <div class="stat-val" id="total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-lbl">Net PnL</div>
+          <div class="stat-val" id="net">$0</div>
+        </div>
+      </div>
+
+      <div class="toolbar" id="default-toolbar">
+        <button class="btn-main" onclick="openModal()">+ Jurnal Baru</button>
+        <button class="btn-sec" onclick="toggleSelectMode()">Pilih</button>
+      </div>
+
+      <div class="toolbar" id="select-toolbar" style="display: none">
+        <button class="btn-main btn-danger" onclick="deleteSelected()">
+          Hapus Terpilih (<span id="sel-count">0</span>)
+        </button>
+        <button class="btn-sec" onclick="toggleSelectMode()">Batal</button>
+      </div>
+
+      <div class="list-container" id="list"></div>
+
+      <div
+        id="empty"
+        style="
+          text-align: center;
+          color: var(--muted);
+          padding: 3rem;
+          font-size: 0.9rem;
+        "
+      >
+        Belum ada data jurnal.<br />Tekan tombol + untuk mulai.
+      </div>
+    </div>
+
+    <div class="modal" id="modal">
+      <div class="modal-box">
+        <h3 style="margin-bottom: 1.5rem" id="modal-title">Input Jurnal</h3>
+        <input type="hidden" id="edit-id" />
+
+        <div class="grid-2">
+          <div>
+            <label>Pair</label>
+            <input
+              type="text"
+              id="pair"
+              placeholder="XAUUSD"
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <label>Posisi</label>
+            <select id="type">
+              <option value="LONG">BUY (Long)</option>
+              <option value="SHORT">SELL (Short)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Entry Price</label>
+            <input type="number" id="entry" placeholder="0.00" step="any" />
+          </div>
+          <div>
+            <label>Exit Price</label>
+            <input type="number" id="exit" placeholder="0.00" step="any" />
+          </div>
+        </div>
+
+        <label>Stop Loss (SL)</label>
+        <input type="number" id="sl" placeholder="0.00" step="any" />
+
+        <div class="grid-2">
+          <div>
+            <label>Status</label>
+            <select id="status">
+              <option value="WIN">WIN</option>
+              <option value="LOSS">LOSS</option>
+              <option value="BE">BE (Impas)</option>
+            </select>
+          </div>
+          <div>
+            <label>Profit / Loss ($)</label>
+            <input type="number" id="pnl" placeholder="0.00" step="any" />
+          </div>
+        </div>
+
+        <label>Link TradingView (URL)</label>
+        <input
+          type="url"
+          id="tvlink"
+          placeholder="https://tradingview.com/x/..."
+          autocomplete="off"
+        />
+
+        <div id="view-link-area" style="margin-bottom: 1rem; display: none">
+          <a href="#" target="_blank" id="view-link-href" class="tv-link-btn"
+            >Buka Chart di Browser ↗</a
+          >
+        </div>
+
+        <div class="btns">
+          <button class="btn-sec" onclick="closeModal()">Batal</button>
+          <button class="btn-main" onclick="save()">Simpan Data</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const KEY = "TJ_DATA_FINAL_REV";
+      let data = JSON.parse(localStorage.getItem(KEY) || "[]");
+
+      let isSelectMode = false;
+      let selectedIds = new Set();
+
+      // --- CORE FUNCTIONS ---
+      function render() {
+        const list = document.getElementById("list");
+        const empty = document.getElementById("empty");
+
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+          empty.style.display = "block";
+        } else {
+          empty.style.display = "none";
+
+          data.forEach((d) => {
+            const pnlColor = d.pnl >= 0 ? "var(--win)" : "var(--loss)";
+            const statColor =
+              d.status === "WIN"
+                ? "var(--win)"
+                : d.status === "LOSS"
+                ? "var(--loss)"
+                : "var(--be)";
+            const hasLink = d.tvlink && d.tvlink.length > 5;
+            const isSelected = selectedIds.has(d.id);
+
+            const el = document.createElement("div");
+            el.className = "j-card";
+            el.onclick = () => cardClick(d.id);
+
+            el.innerHTML = `
+                        <div class="j-check ${isSelectMode ? "active" : ""} ${
+              isSelected ? "checked" : ""
+            }"></div>
+                        
+                        <div class="j-content">
+                            <div class="j-left">
+                                <div class="j-pair">
+                                    ${d.pair} 
+                                    ${
+                                      hasLink
+                                        ? `<svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+                                        : ""
+                                    }
+                                </div>
+                                <div class="j-meta">
+                                    <span class="tag ${d.type}">${d.type}</span>
+                                    <span class="date">${d.date}</span>
+                                </div>
+                            </div>
+                            <div class="j-right">
+                                <div class="j-pnl" style="color:${pnlColor}">${
+              d.pnl > 0 ? "+" : ""
+            }${d.pnl}$</div>
+                                <div class="j-status" style="color:${statColor}">${
+              d.status
+            }</div>
+                            </div>
+                        </div>
+                    `;
+            list.appendChild(el);
+          });
+        }
+        stats();
+        updateToolbar();
+      }
+
+      function stats() {
+        const total = data.length;
+        const wins = data.filter((x) => x.status === "WIN").length;
+        const net = data.reduce((a, b) => a + Number(b.pnl), 0);
+
+        document.getElementById("total").innerText = total;
+        document.getElementById("wr").innerText = total
+          ? Math.round((wins / total) * 100) + "%"
+          : "0%";
+
+        const nEl = document.getElementById("net");
+        nEl.innerText = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(net);
+        nEl.className = "stat-val " + (net >= 0 ? "green" : "red");
+      }
+
+      // --- SELECTION LOGIC ---
+      function toggleSelectMode() {
+        isSelectMode = !isSelectMode;
+        selectedIds.clear();
+        render();
+      }
+
+      function cardClick(id) {
+        if (isSelectMode) {
+          if (selectedIds.has(id)) selectedIds.delete(id);
+          else selectedIds.add(id);
+          render();
+        } else {
+          openModal(id);
+        }
+      }
+
+      function updateToolbar() {
+        const defBar = document.getElementById("default-toolbar");
+        const selBar = document.getElementById("select-toolbar");
+
+        if (isSelectMode) {
+          defBar.style.display = "none";
+          selBar.style.display = "flex";
+          document.getElementById("sel-count").innerText = selectedIds.size;
+        } else {
+          defBar.style.display = "flex";
+          selBar.style.display = "none";
+        }
+      }
+
+      function deleteSelected() {
+        if (selectedIds.size === 0) return;
+        if (confirm(`Hapus ${selectedIds.size} jurnal terpilih?`)) {
+          data = data.filter((d) => !selectedIds.has(d.id));
+          localStorage.setItem(KEY, JSON.stringify(data));
+          toggleSelectMode();
+        }
+      }
+
+      // --- CRUD LOGIC ---
+      function save() {
+        const id = document.getElementById("edit-id").value;
+        const pair =
+          document.getElementById("pair").value.toUpperCase() || "UNKNOWN";
+        const type = document.getElementById("type").value;
+        const status = document.getElementById("status").value;
+        let pnl = parseFloat(document.getElementById("pnl").value);
+
+        const entry = document.getElementById("entry").value;
+        const exit = document.getElementById("exit").value;
+        const sl = document.getElementById("sl").value;
+        const tvlink = document.getElementById("tvlink").value;
+
+        if (isNaN(pnl)) {
+          alert("Masukkan nominal PnL");
+          return;
+        }
+
+        if (status === "LOSS" && pnl > 0) pnl = -pnl;
+        if (status === "WIN" && pnl < 0) pnl = Math.abs(pnl);
+
+        const tradeObj = {
+          id: id ? Number(id) : Date.now(),
+          date: id
+            ? getOldDate(id)
+            : new Date().toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+              }),
+          pair,
+          type,
+          status,
+          pnl,
+          entry,
+          exit,
+          sl,
+          tvlink,
+        };
+        console.log(tradeObj);
+
+        if (id) {
+          const idx = data.findIndex((d) => d.id == id);
+          if (idx !== -1) data[idx] = tradeObj;
+        } else {
+          data.unshift(tradeObj);
+        }
+
+        localStorage.setItem(KEY, JSON.stringify(data));
+        closeModal();
+        render();
+      }
+
+      function getOldDate(id) {
+        const old = data.find((d) => d.id == id);
+        return old ? old.date : new Date().toLocaleDateString("id-ID");
+      }
+
+      // --- MODAL CONTROLS ---
+      const modal = document.getElementById("modal");
+
+      function openModal(id = null) {
+        document.getElementById("pair").value = "";
+        document.getElementById("pnl").value = "";
+        document.getElementById("entry").value = "";
+        document.getElementById("exit").value = "";
+        document.getElementById("sl").value = "";
+        document.getElementById("tvlink").value = "";
+        document.getElementById("edit-id").value = "";
+        document.getElementById("view-link-area").style.display = "none";
+
+        if (id) {
+          const d = data.find((x) => x.id === id);
+          if (d) {
+            document.getElementById("edit-id").value = d.id;
+            document.getElementById("modal-title").innerText = "Edit Jurnal";
+            document.getElementById("pair").value = d.pair;
+            document.getElementById("type").value = d.type;
+            document.getElementById("status").value = d.status;
+            document.getElementById("pnl").value = d.pnl;
+
+            if (d.entry) document.getElementById("entry").value = d.entry;
+            if (d.exit) document.getElementById("exit").value = d.exit;
+            if (d.sl) document.getElementById("sl").value = d.sl;
+            if (d.tvlink) {
+              document.getElementById("tvlink").value = d.tvlink;
+              const linkBtn = document.getElementById("view-link-href");
+              linkBtn.href = d.tvlink;
+              document.getElementById("view-link-area").style.display = "block";
+            }
+          }
+        } else {
+          document.getElementById("modal-title").innerText =
+            "Input Jurnal Baru";
+        }
+        modal.classList.add("open");
+      }
+
+      function closeModal() {
+        modal.classList.remove("open");
+      }
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      render();
+    </script>
+  </body>
+</html>

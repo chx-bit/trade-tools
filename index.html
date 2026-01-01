@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradeTools Hub</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* --- 1. DESIGN TOKENS --- */
+      :root {
+        --background: #09090b;
+        --foreground: #fafafa;
+        --card: #09090b;
+        --card-hover: #18181b;
+        --border: #27272a;
+        --muted: #a1a1aa;
+        --primary: #fafafa;
+        --accent: #27272a;
+        --ring: #d4d4d8;
+        --radius: 0.75rem;
+      }
+
+      /* --- 2. RESET & BASE --- */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--background);
+        color: var(--foreground);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+
+      .Glow {
+        content: "";
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.08) 0%,
+          rgba(9, 9, 11, 0) 70%
+        );
+        z-index: -1;
+        pointer-events: none;
+        overflow-x: hidden;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* --- 3. LAYOUT & UTILS --- */
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* --- 4. NAVBAR --- */
+      nav {
+        border-bottom: 1px solid var(--border);
+        height: 64px;
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(12px);
+        z-index: 50;
+      }
+
+      .nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--foreground);
+        color: var(--background);
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+      }
+
+      /* --- 5. HERO SECTION --- */
+      .hero {
+        padding: 4rem 0 3rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 1rem;
+        background: linear-gradient(to bottom right, #fff 0%, #a1a1aa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      /* --- 6. TOOLS GRID --- */
+      .tools-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 2rem 0;
+      }
+
+      @media (min-width: 768px) {
+        .tools-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
+        .hero h1 {
+          font-size: 3.5rem;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .tools-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      /* --- 7. TOOL CARD --- */
+      .card {
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        border-color: var(--muted);
+        background-color: var(--card-hover);
+        transform: translateY(-2px);
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1rem;
+        color: var(--foreground);
+      }
+
+      .card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .card-desc {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .card-arrow {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        color: var(--muted);
+        opacity: 0;
+        transition: all 0.2s;
+      }
+
+      .card:hover .card-arrow {
+        opacity: 1;
+        transform: translateX(4px);
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--muted);
+        margin-left: 0.5rem;
+        border: 1px solid var(--border);
+      }
+
+      footer {
+        margin-top: auto;
+        border-top: 1px solid var(--border);
+        padding: 2rem 0;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="container nav-content">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <a href="index.html">TradeTools</a>
+        </div>
+        <a href="#" style="font-size: 0.875rem; color: var(--muted)">v1.2</a>
+      </div>
+    </nav>
+    <div class="Glow"></div>
+
+    <div class="container">
+      <header class="hero">
+        <h1>Trading Essentials</h1>
+        <p>
+          Kumpulan alat bantu sederhana untuk membantu Anda menganalisis pasar,
+          menghitung risiko, dan mencatat performa.
+        </p>
+      </header>
+
+      <main class="tools-grid">
+        <a href="calc.html" class="card">
+          <div class="card-arrow">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="4" y="2" width="16" height="20" rx="2" />
+              <line x1="8" y1="6" x2="16" y2="6" />
+              <line x1="16" y1="14" x2="16" y2="18" />
+              <path d="M16 10h.01" />
+              <path d="M12 10h.01" />
+              <path d="M8 10h.01" />
+              <path d="M12 14h.01" />
+              <path d="M8 14h.01" />
+              <path d="M12 18h.01" />
+              <path d="M8 18h.01" />
+            </svg>
+          </div>
+          <h3 class="card-title">Pip Calculator</h3>
+          <p class="card-desc">
+            Hitung estimasi profit, nilai pip, dan manajemen lot untuk Forex,
+            Gold (XAU), dan Crypto.
+          </p>
+        </a>
+        <a href="journal.html" class="card">
+          <div class="card-arrow">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="card-title">Trading Journal</h3>
+          <p class="card-desc">
+            Catat riwayat trading, analisis winrate, dan evaluasi strategi Anda
+            dalam tampilan mobile-friendly.
+          </p>
+        </a>
+        <a href="compound.html" class="card">
+          <div class="card-arrow">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+          <div class="card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="4" y="2" width="16" height="20" rx="2" />
+              <line x1="8" y1="6" x2="16" y2="6" />
+              <line x1="16" y1="14" x2="16" y2="18" />
+              <path d="M16 10h.01" />
+              <path d="M12 10h.01" />
+              <path d="M8 10h.01" />
+              <path d="M12 14h.01" />
+              <path d="M8 14h.01" />
+              <path d="M12 18h.01" />
+              <path d="M8 18h.01" />
+            </svg>
+          </div>
+          <h3 class="card-title">Compound Calculator</h3>
+          <p class="card-desc">
+            Kalkulator compounding adalah alat finansial yang dirancang untuk
+            memproyeksikan pertumbuhan aset melalui akumulasi bunga majemuk
+            secara eksponensial dalam jangka waktu tertentu.
+          </p>
+        </a>
+      </main>
+    </div>
+
+    <footer>
+      <p id="foot"></p>
+    </footer>
+    <script>
+      const p = document.getElementById("foot");
+      const d = new Date();
+      p.innerHTML = `&copy; ${d.getFullYear()} TradeTools. Built for Traders.`;
+    </script>
+  </body>
+</html>
